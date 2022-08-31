@@ -2,48 +2,63 @@
 
 namespace App\Models;
 
-// use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Post
+class Post extends Model
 {
-    // use HasFactory;
+    use HasFactory;
 
-    private static $blog_posts = [
-        [
-            "title" => "Judul Post Pertama",
-            'slug' => 'judul-post-pertama',
-            "author" => "Rafi",
-            "body" => "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum eligendi culpa iste cum recusandae ipsa nesciunt laboriosam placeat. Veniam laboriosam reprehenderit autem inventore quidem natus aperiam quia voluptatem ducimus eligendi."
-        ],
-        [
-            "title" => "Judul Post Kedua",
-            'slug' => 'judul-post-kedua',
-            "author" => "Ridwan",
-            "body" => "Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus, quisquam at. Reiciendis nobis consectetur, omnis neque laborum commodi cumque voluptate, quos rerum voluptatem ducimus nihil, reprehenderit totam. Reiciendis repellendus corrupti id temporibus inventore recusandae obcaecati doloremque vitae eveniet qui veritatis, unde odio laborum? In maiores facilis, esse beatae dolorem magnam officia eligendi nisi atque rerum ut excepturi similique amet voluptatum voluptatem ab, repudiandae delectus harum corrupti? Esse repellat dolore, alias illum illo magnam consectetur eligendi, cum neque ratione possimus reprehenderit, quia error. Totam ex doloribus magnam atque, quod consectetur laudantium. Ab, culpa velit. Vero aliquam incidunt odit iure totam vitae?"
-        ],
+    // protected $fillable = [
+    //     'title',
+    //     'excerpt',
+    //     'body',
+    // ];
+
+    protected $guarded = [
+        'id'
     ];
+    protected $with = ['category', 'author'];
 
-    public static function all()
+    /**
+     * Get the category that owns the Post
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function category()
     {
-        return collect(self::$blog_posts);
+        return $this->belongsTo(Category::class);
     }
 
-    public static function find($slug)
+    public function author()
     {
-        $posts = static::all();
-        return $posts->firstWhere('slug', $slug);
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
-        // $new_post = [];
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? false, function ($query, $search) {
+            return $query->where(function ($query) use ($search) {
+                $query->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('body', 'like', '%' . $search . '%');
+            });
+        });
 
-        // foreach ($blog_posts as $post) {
-        //   if ($post['slug'] === $slug) {
-        //     $new_post = $post;
-        //   }
-        // }
+        $query->when($filters['category'] ?? false, function ($query, $category) {
+            return $query->whereHas('category', function ($query) use ($category) {
+                $query->where('slug', $category);
+            });
+        });
 
-        // $index = array_search($slug, array_column($posts, 'slug'));
-        // $new_post = $posts[$index];
+        $query->when($filters['author'] ?? false, function ($query, $author) {
+            return $query->whereHas('author', function ($query) use ($author) {
+                $query->where('username', $author);
+            });
+        });
+    }
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 }

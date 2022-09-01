@@ -6,6 +6,12 @@
   </div>
 
   <div class="table-responsive col-lg-8">
+    @if (session()->has('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
     <a href="/dashboard/posts/create" class="btn btn-primary mb-3">Create new post</a>
     <table class="table table-striped table-sm">
       <thead>
@@ -20,7 +26,7 @@
         @foreach ($posts as $post)
         <tr>
           <td>{{ $loop->iteration }}</td>
-          <td>{{ $post->title }}/td>
+          <td>{{ $post->title }}</td>
           <td>{{ $post->category->name }}</td>
           <td>
             <a href="/dashboard/posts/{{ $post->slug }}" class="badge bg-info"><span data-feather="eye"></span></a>

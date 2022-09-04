@@ -14,7 +14,14 @@
         <button class="btn btn-danger" onclick="return confirm('Are you sure?')"><i class="bi bi-x-circle"></i> Delete</button>
       </form>
 
-      <img src="https://source.unsplash.com/500x400?{{ $post->category->name }}" class="card-img-top mt-3" alt="{{ $post->category->name }}">
+      @if ($post->image)
+        <img src="{{ asset('storage/'. $post->image) }}" alt="" class="mt-3" style="object-fit:cover;
+        object-position: center;
+        width:auto;
+        height:400px;">
+      @else
+        <img src="https://source.unsplash.com/500x400?{{ $post->category->name }}" class="card-img-top mt-3" alt="{{ $post->category->name }}">
+      @endif
 
       <article class="my-3">
         {!! $post->body !!}

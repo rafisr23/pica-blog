@@ -13,6 +13,12 @@
           My Post
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->segment(1) == '' ? 'active' : '' }}" href="/">
+          <span data-feather="file-text" class="align-text-bottom"></span>
+          Home
+        </a>
+      </li>
     </ul>
   </div>
 </nav>

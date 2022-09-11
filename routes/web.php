@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\DashboardPostController;
 
 /*
@@ -43,17 +44,23 @@ Route::get('/categories/{category:slug}', [CategoryController::class, 'postInCat
 
 Route::get('/authors/{author:username}', [UserController::class, 'postInAuthor']);
 
-Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'logout']);
 
 Route::get('/register', [RegisterController::class, 'index']);
 Route::post('/register', [RegisterController::class, 'store']);
 
-Route::get('/dashboard', function () {
-  return view('dashboard.index');
-})->middleware('auth');
+Route::middleware(['guest'])->group(function () {
+  Route::get('/login', [LoginController::class, 'index'])->name('login');
+});
 
-Route::get('/dashboard/posts/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
-Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
+Route::middleware(['auth'])->group(function () {
+  Route::get('/dashboard/posts/checkSlug', [DashboardPostController::class, 'checkSlug']);
+  Route::resource('/dashboard/posts', DashboardPostController::class);
+  Route::get('/dashboard', function () {
+    return view('dashboard.index');
+  })->middleware('auth');
+});
+Route::resource('/dashboard/categories', AdminCategoryController::class)->except('show')->middleware('admin');
+
 

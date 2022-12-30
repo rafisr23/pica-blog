@@ -61,6 +61,5 @@ Route::middleware(['auth'])->group(function () {
     return view('dashboard.index');
   })->middleware('auth');
 });
+
 Route::resource('/dashboard/categories', AdminCategoryController::class)->except('show')->middleware('admin');
-
-
